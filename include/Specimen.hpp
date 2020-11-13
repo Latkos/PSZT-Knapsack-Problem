@@ -10,6 +10,7 @@ class Specimen
 private:
     int size;
     static RandomGenerator randomGen;
+
 public:
     std::vector<int> genes;
     Specimen(int uSize);

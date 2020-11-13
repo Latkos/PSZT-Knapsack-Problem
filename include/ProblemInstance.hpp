@@ -5,22 +5,26 @@
 #include "RandomGenerator.hpp"
 #include "Clock.hpp"
 #include "Specimen.hpp"
-class ProblemInstance{
-    private:
+class ProblemInstance
+{
+private:
     RandomGenerator randomGen;
     Clock clock;
     int problemSize;
-    int populationSize=8;
-    std::vector<int> weights, values;
+    int populationSize = 100;
+    int knapsackSize = 35;
+    std::vector<int> weights, values, allFitness;
     std::vector<Specimen> population;
-    public:
+
+public:
     void initialize();
     void todo();
-    void measureOverallFitness();
-    int fitness();
+    int individualFitness(int index);
+    void fitness();
     void select();
     //crossover();
     void mutate();
+    void run();
 };
 
 #endif

@@ -7,9 +7,7 @@
 int main()
 {
     ProblemInstance problem;
-    problem.initialize();
-    problem.todo();
-
+    problem.run();
     /*RandomGenerator random;
     for (int a=0;a<10;a++)
         std::cout<<random.generateInt(1,20)<<" ";*/

@@ -11,6 +11,7 @@ private:
 public:
     RandomGenerator();
     int generateInt(int beginning, int end);
+    double generateProbability();
     //int generateInt();
 };
 
