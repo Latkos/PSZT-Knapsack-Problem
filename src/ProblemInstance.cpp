@@ -2,9 +2,15 @@
 #include <random>
 #include "ProblemInstance.hpp"
 
+ProblemInstance::ProblemInstance(int knapsackCapacity)
+{
+    knapsackSize = knapsackCapacity;
+}
+
+
 void ProblemInstance::initialize()
 {
-    problemSize = randomGen.generateInt(10, 15);
+    problemSize = randomGen.generateInt(500, 500);
     for (int a = 0; a < problemSize; a++)
     {
         int random;
@@ -21,15 +27,15 @@ void ProblemInstance::initialize()
     }
 }
 
-void ProblemInstance::todo()
+void ProblemInstance::display()
 {
-    std::cout << "WEIGHTS" << std::endl;
+    /*std::cout << "WEIGHTS" << std::endl;
     for (int a = 0; a < problemSize; a++)
         std::cout << weights[a] << " ";
     std::cout << "\nVALUES" << std::endl;
     for (int a = 0; a < problemSize; a++)
         std::cout << values[a] << " ";
-    std::cout << "\nPOPULATION" << std::endl;
+    std::cout << "\nPOPULATION" << std::endl;*/
     for (int a = 0; a < populationSize; a++)
     {
         for (int b = 0; b < problemSize; b++)
@@ -47,6 +53,25 @@ void ProblemInstance::fitness()
     {
         allFitness.push_back(individualFitness(a));
     }
+    double averageFitness = 0;
+    for (int a = 0; a < populationSize; a++)
+    {
+        averageFitness = averageFitness + allFitness[a];
+    }
+    averageFitness = averageFitness / populationSize;
+    fitnessHistory.push_back(averageFitness);
+    fitnessMax.push_back(allFitness[maxIndex()]);
+}
+
+int ProblemInstance::maxIndex()
+{
+    int max = 0;
+    for (int a = 0; a < populationSize; a++)
+    {
+        if (allFitness[a] > allFitness[max])
+            max = a;
+    }
+    return max;
 }
 
 int ProblemInstance::individualFitness(int index)
@@ -81,7 +106,7 @@ void ProblemInstance::select()
 
 void ProblemInstance::mutate()
 {
-    double mutationRate = 0.5;
+    double mutationRate = 0.8;
     for (int a = 0; a < populationSize; a++)
     {
         double probability = randomGen.generateProbability();
@@ -96,29 +121,53 @@ void ProblemInstance::mutate()
     }
 }
 
+void ProblemInstance::crossover()
+{
+    std::vector<Specimen> tempPopulation;
+    for (int a = 0; a < populationSize/2; a++)
+    {
+        double probability = randomGen.generateProbability();
+        if (probability > 0.8)
+        {
+            tempPopulation.push_back(population[a]);
+            tempPopulation.push_back(population[a + 1]);
+        }
+        else
+        {
+            Specimen child1(problemSize), child2(problemSize);
+            int point = problemSize/2; //albo int point =randGen.generateInt(0,problemSize-1)
+            for (int b = 0; b < point; b++)
+            {
+                child1.genes.push_back(population[a].genes[b]);
+                child2.genes.push_back(population[a + 1].genes[b]);
+            }
+            for (int b = point; b < problemSize; b++)
+            {
+                child1.genes.push_back(population[a + 1].genes[b]);
+                child2.genes.push_back(population[a].genes[b]);
+            }
+            tempPopulation.push_back(child1);
+            tempPopulation.push_back(child2);
+        }
+    }
+    population.clear();
+    population = tempPopulation;
+}
+
 void ProblemInstance::run()
 {
     initialize();
-    /*weights = {10, 12, 3, 4, 5, 6, 7, 8};
-    values = {27, 34, 19, 40, 5, 200, 3, 10};
-    for (int a = 0; a < populationSize; a++)
-    {
-        Specimen newSpecimen(problemSize);
-        newSpecimen.fill();
-        population.push_back(newSpecimen);
-    }*/
-    todo();
+    //display();
+    // std::vector<Specimen> initialPopulation=population; tutaj zostawiamy dla liczenia tego samego problemu wiecej razy
     for (int length = 0; length < 5000; length++)
     {
-        //std::cout<<"TEST1"<<std::endl;
+        std::cout<<length<<std::endl;
         fitness();
-        //std::cout<<"TEST2"<<std::endl;
         select();
-        //std::cout<<"TEST3"<<std::endl;
+        //crossover();
         mutate();
-        //std::cout<<"TEST4"<<std::endl;
     }
-    todo();
+//display();
     int max = 0;
     for (int a = 0; a < populationSize; a++)
     {

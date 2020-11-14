@@ -11,7 +11,7 @@ void Specimen::fill()
 {
     for (int a = 0; a < size; a++)
     {
-        int newGene = randomGen.generateInt(0, 1);
+        int newGene = rand()%2;
         genes.push_back(newGene);
     }
 }

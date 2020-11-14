@@ -11,20 +11,23 @@ private:
     RandomGenerator randomGen;
     Clock clock;
     int problemSize;
-    int populationSize = 100;
-    int knapsackSize = 35;
-    std::vector<int> weights, values, allFitness;
+    int populationSize = 1000;
+    int knapsackSize;
+    std::vector<int> weights, values, allFitness, fitnessHistory,fitnessMax;
     std::vector<Specimen> population;
+    std::vector<Specimen> parents;
 
 public:
+    ProblemInstance(int knapsackCapacity);
     void initialize();
-    void todo();
+    void display();
     int individualFitness(int index);
     void fitness();
     void select();
-    //crossover();
+    void crossover();
     void mutate();
     void run();
+    int maxIndex();
 };
 
 #endif
