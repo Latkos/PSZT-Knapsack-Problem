@@ -5,13 +5,17 @@ RandomGenerator Specimen::randomGen;
 Specimen::Specimen(int uSize)
 {
     size = uSize;
+    fitness=0;
 }
 
-void Specimen::fill()
+void Specimen::fill(double itemProbability)
 {
     for (int a = 0; a < size; a++)
     {
-        int newGene = rand()%2;
-        genes.push_back(newGene);
+        double probability=randomGen.generateProbability();
+        if (probability<itemProbability){
+            genes.push_back(1);
+        }
+        genes.push_back(0);
     }
 }

@@ -4,7 +4,7 @@
 #include "RandomGenerator.hpp"
 
 #include <vector>
-
+#include <algorithm>
 class Specimen
 {
 private:
@@ -13,9 +13,9 @@ private:
 
 public:
     std::vector<int> genes;
+    int fitness;
     Specimen(int uSize);
-    void fill();
-    int fitness();
+    void fill(double itemProbability);
 };
 
 #endif

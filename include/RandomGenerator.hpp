@@ -5,10 +5,8 @@
 #include <chrono>
 class RandomGenerator
 {
-private:
+    public:
     std::mt19937 engine;
-
-public:
     RandomGenerator();
     int generateInt(int beginning, int end);
     double generateProbability();
