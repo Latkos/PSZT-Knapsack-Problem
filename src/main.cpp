@@ -6,6 +6,6 @@
 
 int main()
 {
-    ProblemInstance problem(30);
+    ProblemInstance problem;
     problem.run();
 }

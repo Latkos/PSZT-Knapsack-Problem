@@ -2,14 +2,9 @@
 #include <random>
 #include "ProblemInstance.hpp"
 
-ProblemInstance::ProblemInstance(int knapsackCapacity)
-{
-    knapsackSize = knapsackCapacity;
-}
 
 void ProblemInstance::initializeWeightsAndValues()
 {
-    problemSize = randomGen.generateInt(150, 150);
     for (int a = 0; a < problemSize; a++)
     {
         int random;
@@ -281,7 +276,7 @@ void ProblemInstance::run()
         }
         clock.start();
         int a = 0;
-        while (a < 250 || population[maxIndex()].fitness == 0)
+        while (a < generations || population[maxIndex()].fitness == 0)
         {
             fitness();
             select();
