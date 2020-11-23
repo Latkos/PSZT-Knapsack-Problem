@@ -23,7 +23,7 @@ int main()
     {
         std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
     }
-   // problem.fullTesting(out1);
+    problem.fullTesting(out1);
     problem.fullTesting2(out2);
     out1.close(); out2.close();
 }

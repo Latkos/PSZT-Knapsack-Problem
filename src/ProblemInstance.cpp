@@ -292,7 +292,7 @@ void ProblemInstance::run(std::ostream & os)
     double time = 0;
     int bestSolution = 0;
     int sumReal = 0;
-    for (int times = 0; times < 50; times++)
+    for (int times = 0; times < 20; times++)
     {
         initializePopulation();
         //initializePopulationWithZeroes();
@@ -325,9 +325,9 @@ void ProblemInstance::run(std::ostream & os)
         //std::cout << "******" << std::endl;
         sumReal = sumReal + max;
     }
-    sumReal = sumReal / 50;
+    sumReal = sumReal / 20;
     double deviation = (double)sumReal / (double)bestSolution;
-    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 50<<std::endl;
+    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 20<<std::endl;
     //std::cout << "Srednie odchylenie: " << deviation << std::endl;
     //std::cout << "Sredni czas: " << time / 50 << std::endl;
 
@@ -348,13 +348,13 @@ void ProblemInstance::testMutationRate()
 void ProblemInstance::fullTesting(std::ostream &os)
 {
     os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-    for (double n = 0.1; n<1; n+=0.1) 
+    for (double n = 0.1; n<1; n+=0.2)
     {
         mutationRate = n;
-        for (int i = 50;i<550;i+=50)
+        for (int i = 50;i<550;i+=100)
         {
             populationSize = i;
-            for (int j = 200; j < 1200; j+=100)
+            for (int j = 200; j < 1200; j+=200)
             {
              generations = j;
                 for (int k = 50; k <= 150 ; k+=50)
@@ -376,7 +376,7 @@ void ProblemInstance::run2(std::ostream &os)
     double time = 0;
     int bestSolution = 0;
     int sumReal = 0;
-    for (int times = 0; times < 50; times++)
+    for (int times = 0; times < 20; times++)
     {
         initializePopulation();
         initializePopulationWithZeroes();
@@ -409,9 +409,9 @@ void ProblemInstance::run2(std::ostream &os)
         //std::cout << "******" << std::endl;
         sumReal = sumReal + max;
     }
-    sumReal = sumReal / 50;
+    sumReal = sumReal / 20;
     double deviation = (double)sumReal / (double)bestSolution;
-    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 50<<std::endl;
+    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 20<<std::endl;
     //std::cout << "Srednie odchylenie: " << deviation << std::endl;
     //std::cout << "Sredni czas: " << time / 50 << std::endl;
 
@@ -420,13 +420,13 @@ void ProblemInstance::run2(std::ostream &os)
 void ProblemInstance::fullTesting2(std::ostream &os)
 {
     os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-    for (double n = 0.1; n<1; n+=0.1)
+    for (double n = 0.1; n<1; n+=0.2)
     {
         mutationRate = n;
-        for (int i = 50;i<550;i+=50)
+        for (int i = 50;i<550;i+=100)
         {
             populationSize = i;
-            for (int j = 200; j < 1200; j+=100)
+            for (int j = 200; j < 1200; j+=200)
             {
                 generations = j;
                 for (int k = 50; k <= 150 ; k+=50)
