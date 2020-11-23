@@ -144,13 +144,42 @@ void ProblemInstance::smallMutate(double mutationRate)
         }
     }
 }
+void ProblemInstance::crossover2()
+{
+    std::shuffle(population.begin(), population.end(), std::default_random_engine(randomGen.seed));
+    std::vector<Specimen> tempPopulation;
+    for (int a = 0; a < populationSize; a++)
+    {
+        double probability = randomGen.generateProbability();
+        if (probability > 0.8 || a == populationSize - 1)
+            tempPopulation.push_back(population[a]);
+        else
+        {
+            Specimen child(problemSize);
+            int point = randomGen.generateInt(0, problemSize - 1);
+            //int point=populationSize/2;
+            for (int b = 0; b < point; b++)
+            {
+                child.genes.push_back(population[a].genes[b]);
+            }
+            for (int b = point; b < problemSize; b++)
+            {
+                child.genes.push_back(population[a + 1].genes[b]);
+            }
+            tempPopulation.push_back(child);
+        }
+    }
+    population.clear();
+    population = tempPopulation;
+}
+
 void ProblemInstance::crossover()
 {
     std::vector<Specimen> tempPopulation;
     for (int a = 0; a < populationSize / 2; a++)
     {
         double probability = randomGen.generateProbability();
-        if (probability > 0.8)
+        if (probability > 0.8) //CrossoverRatio crossover ratio
         {
             tempPopulation.push_back(population[a]);
             tempPopulation.push_back(population[a + 1]);
@@ -255,7 +284,7 @@ void ProblemInstance::initializePopulationWithZeroes()
     }
 }
 
-void ProblemInstance::run()
+void ProblemInstance::run(std::ostream & os)
 {
     initializeWeightsAndValues();
     //display();
@@ -263,7 +292,7 @@ void ProblemInstance::run()
     double time = 0;
     int bestSolution = 0;
     int sumReal = 0;
-    for (int times = 0; times < 10; times++)
+    for (int times = 0; times < 50; times++)
     {
         initializePopulation();
         //initializePopulationWithZeroes();
@@ -272,7 +301,7 @@ void ProblemInstance::run()
             clock.start();
             bestSolution = solveDynamic();
             clock.end();
-            std::cout << "\nNAJLEPSZA: " << bestSolution << " " << clock.elapsedTime() << std::endl;
+            //std::cout << "\nNAJLEPSZA: " << bestSolution << " " << clock.elapsedTime() << std::endl;
         }
         clock.start();
         int a = 0;
@@ -283,21 +312,130 @@ void ProblemInstance::run()
             crossover();
             smallMutate(mutationRate);
             a++;
+            fitnessHistory.push_back(population[maxIndex()].fitness);
         }
         clock.end();
         fitnessMax.clear();
         time = time + clock.elapsedTime();
-        std::cout << clock.elapsedTime() << std::endl;
+        //std::cout << clock.elapsedTime() << std::endl;
         fitness();
         int max = population[maxIndex()].fitness;
-        std::cout << "BEST AT THE END: " << max << std::endl;
-        std::cout << "Real max found was " << realMax << std::endl;
-        ;
-        std::cout << "******" << std::endl;
+        //std::cout << "BEST AT THE END: " << max << std::endl;
+        //std::cout << "Real max found was " << realMax << std::endl;
+        //std::cout << "******" << std::endl;
         sumReal = sumReal + max;
     }
-    sumReal = sumReal / 10;
+    sumReal = sumReal / 50;
     double deviation = (double)sumReal / (double)bestSolution;
-    std::cout << "Srednie odchylenie: " << deviation << std::endl;
-    std::cout << "Sredni czas: " << time / 10 << std::endl;
+    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 50<<std::endl;
+    //std::cout << "Srednie odchylenie: " << deviation << std::endl;
+    //std::cout << "Sredni czas: " << time / 50 << std::endl;
+
+}
+
+void ProblemInstance::testMutationRate()
+{
+    for (double n = 0.1; n<1; n+=0.1) {
+        mutationRate = n;
+        std::cout << "Tests done with mutation rate of " << mutationRate << std::endl;
+        for (int i = 1; i <= 3; i++) {
+            std::cout << " batch nuber : " << i << std::endl;
+            run();
+            std::cout << "-------------------------------" << std::endl;
+        }
+    }
+}
+void ProblemInstance::fullTesting(std::ostream &os)
+{
+    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
+    for (double n = 0.1; n<1; n+=0.1) 
+    {
+        mutationRate = n;
+        for (int i = 50;i<550;i+=50)
+        {
+            populationSize = i;
+            for (int j = 200; j < 1200; j+=100)
+            {
+             generations = j;
+                for (int k = 50; k <= 150 ; k+=50)
+                {
+                    problemSize = k;
+                    //os<<n<<"\t"<<i<<"\t"<<j<<"\t"<<k;
+                    run(os);
+                }
+            }
+        }
+    }
+}
+
+void ProblemInstance::run2(std::ostream &os)
+{
+    initializeWeightsAndValues();
+    //display();
+    Clock clock;
+    double time = 0;
+    int bestSolution = 0;
+    int sumReal = 0;
+    for (int times = 0; times < 50; times++)
+    {
+        initializePopulation();
+        initializePopulationWithZeroes();
+        if (times == 0)
+        {
+            clock.start();
+            bestSolution = solveDynamic();
+            clock.end();
+            //std::cout << "\nNAJLEPSZA: " << bestSolution << " " << clock.elapsedTime() << std::endl;
+        }
+        clock.start();
+        int a = 0;
+        while (a < generations || population[maxIndex()].fitness == 0)
+        {
+            fitness();
+            select();
+            crossover();
+            smallMutate(mutationRate);
+            a++;
+            fitnessHistory.push_back(population[maxIndex()].fitness);
+        }
+        clock.end();
+        fitnessMax.clear();
+        time = time + clock.elapsedTime();
+        //std::cout << clock.elapsedTime() << std::endl;
+        fitness();
+        int max = population[maxIndex()].fitness;
+        //std::cout << "BEST AT THE END: " << max << std::endl;
+        //std::cout << "Real max found was " << realMax << std::endl;
+        //std::cout << "******" << std::endl;
+        sumReal = sumReal + max;
+    }
+    sumReal = sumReal / 50;
+    double deviation = (double)sumReal / (double)bestSolution;
+    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 50<<std::endl;
+    //std::cout << "Srednie odchylenie: " << deviation << std::endl;
+    //std::cout << "Sredni czas: " << time / 50 << std::endl;
+
+}
+
+void ProblemInstance::fullTesting2(std::ostream &os)
+{
+    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
+    for (double n = 0.1; n<1; n+=0.1)
+    {
+        mutationRate = n;
+        for (int i = 50;i<550;i+=50)
+        {
+            populationSize = i;
+            for (int j = 200; j < 1200; j+=100)
+            {
+                generations = j;
+                for (int k = 50; k <= 150 ; k+=50)
+                {
+                    problemSize = k;
+                    //os<<n<<"\t"<<i<<"\t"<<j<<"\t"<<k;
+                    run2(os);
+                }
+            }
+        }
+    }
 }

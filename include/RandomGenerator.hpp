@@ -7,6 +7,7 @@ class RandomGenerator
 {
     public:
     std::mt19937 engine;
+    unsigned seed;
     RandomGenerator();
     int generateInt(int beginning, int end);
     double generateProbability();

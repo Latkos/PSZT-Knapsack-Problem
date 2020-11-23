@@ -2,7 +2,7 @@
 
 RandomGenerator::RandomGenerator()
 {
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        seed = std::chrono::system_clock::now().time_since_epoch().count();
         engine = std::mt19937(seed);
 }
 

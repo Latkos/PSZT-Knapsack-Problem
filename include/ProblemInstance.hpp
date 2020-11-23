@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <random>
 #include "RandomGenerator.hpp"
 #include "Clock.hpp"
 #include "Specimen.hpp"
@@ -23,7 +24,7 @@ private:
     int generations=500;
 
     //DATA
-    int knapsackSize=30;
+    int knapsackSize=60;
     int problemSize=150;
  
     std::vector<int> weights, values, allFitness, fitnessHistory, fitnessMax;
@@ -38,14 +39,19 @@ public:
     void fitness();
     void select();
     void crossover();
+    void crossover2();
     void uniformCrossover();
     void mutate();
     void smallMutate(double mutationRate);
-    void run();
+    void run(std::ostream & os = std::cout);
+    void run2(std::ostream & os = std::cout);
     int maxIndex();
     int solveDynamic();
     int max(int a, int b);
     void initializePopulationWithZeroes();
+    void testMutationRate();
+    void fullTesting(std::ostream& os = std::cout);
+    void fullTesting2(std::ostream& os = std::cout);
 };
 
 #endif
