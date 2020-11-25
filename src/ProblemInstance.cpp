@@ -305,7 +305,7 @@ void ProblemInstance::run(std::ostream & os)
         }
         clock.start();
         int a = 0;
-        while (a < generations || population[maxIndex()].fitness == 0)
+        while (a < generations)
         {
             fitness();
             select();
@@ -389,7 +389,7 @@ void ProblemInstance::run2(std::ostream &os)
         }
         clock.start();
         int a = 0;
-        while (a < generations || population[maxIndex()].fitness == 0)
+        while (a < generations)
         {
             fitness();
             select();
@@ -434,6 +434,29 @@ void ProblemInstance::fullTesting2(std::ostream &os)
                     problemSize = k;
                     //os<<n<<"\t"<<i<<"\t"<<j<<"\t"<<k;
                     run2(os);
+                }
+            }
+        }
+    }
+}
+
+void ProblemInstance::problematicTesting(std::ostream &os)
+{
+    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
+    for (double n = 0.7; n<1; n+=0.2)
+    {
+        mutationRate = n;
+        for (int i = 50;i<550;i+=100)
+        {
+            populationSize = i;
+            for (int j = 400; j < 1200; j+=200)
+            {
+                generations = j;
+                for (int k = 50; k <= 150 ; k+=50)
+                {
+                    problemSize = k;
+                    //os<<n<<"\t"<<i<<"\t"<<j<<"\t"<<k;
+                    run(os);
                 }
             }
         }

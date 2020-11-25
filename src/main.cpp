@@ -18,12 +18,14 @@ int main()
         std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
     }
     std::fstream out2;
-    out2.open("run2 results.txt", std::ios::out|std::ios::trunc);
+    out2.open("run2 resultsD.txt", std::ios::out|std::ios::trunc);
     if(out2.good()==false)
     {
         std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
     }
-    problem.fullTesting(out1);
     problem.fullTesting2(out2);
-    out1.close(); out2.close();
+    problem.fullTesting(out1);
+    out1.close();
+    out2.close();
+    //problem.problematicTesting(std::cout);
 }

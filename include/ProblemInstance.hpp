@@ -52,6 +52,8 @@ public:
     void testMutationRate();
     void fullTesting(std::ostream& os = std::cout);
     void fullTesting2(std::ostream& os = std::cout);
+
+    void problematicTesting(std::ostream &os);
 };
 
 #endif
