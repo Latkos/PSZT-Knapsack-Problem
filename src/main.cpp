@@ -11,21 +11,34 @@ int main()
     //problem.run();
     //problem.testMutationRate();
 
-    std::fstream out1;
-    out1.open("run results.txt", std::ios::out|std::ios::trunc);
-    if(out1.good()==false)
+    std::fstream mutation;
+    mutation.open("Mutation test results.txt", std::ios::out|std::ios::trunc);
+    if(mutation.good()==false)
     {
         std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
     }
-    std::fstream out2;
-    out2.open("run2 resultsD.txt", std::ios::out|std::ios::trunc);
-    if(out2.good()==false)
+    std::fstream popSize;
+    popSize.open("population size test results.txt", std::ios::out|std::ios::trunc);
+    if(popSize.good()==false)
     {
         std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
     }
-    problem.fullTesting2(out2);
-    problem.fullTesting(out1);
-    out1.close();
-    out2.close();
-    //problem.problematicTesting(std::cout);
+    std::fstream generations;
+    mutation.open("generation test results.txt", std::ios::out|std::ios::trunc);
+    if(generations.good()==false)
+    {
+        std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
+    }
+    std::fstream fitnessAlig;
+    mutation.open("Mutation test results.txt", std::ios::out|std::ios::trunc);
+    if(fitnessAlig.good()==false)
+    {
+        std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
+    }
+
+    problem.testMutationRateForOptimum(mutation);
+    problem.testPopulationSizeForOptimum(popSize);
+    problem.testGenerationsForOptimum(generations);
+    problem.testFitnessByGeneraiton(fitnessAlig);
+    std::cout<<"done"<<std::endl;
 }

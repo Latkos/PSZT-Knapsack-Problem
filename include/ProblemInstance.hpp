@@ -19,9 +19,9 @@ private:
 
     //MODIFY THOSE
     double elitismRate=0.15; //most probably DO NOT modify it, I found that 0.1 is too little and 0.2 too much, but you can try...
-    double mutationRate=0.7;
-    int populationSize = 300;
-    int generations=500;
+    double mutationRate=0.5;
+    int populationSize = 250;
+    int generations=200;
 
     //DATA
     int knapsackSize=60;
@@ -54,6 +54,18 @@ public:
     void fullTesting2(std::ostream& os = std::cout);
 
     void problematicTesting(std::ostream &os);
+
+    void testMutationRateForOptimum(std::ostream& os = std::cout);
+
+    void runTest(std::ostream &os = std::cout);
+
+    void testPopulationSizeForOptimum(std::ostream &os);
+
+    void testGenerationsForOptimum(std::ostream &os);
+
+    void testFitnessByGeneraiton(std::ostream &os);
+
+    void runOnce(std::ostream &os);
 };
 
 #endif

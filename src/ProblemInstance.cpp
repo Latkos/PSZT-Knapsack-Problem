@@ -309,7 +309,7 @@ void ProblemInstance::run(std::ostream & os)
         {
             fitness();
             select();
-            crossover();
+            crossover2();
             smallMutate(mutationRate);
             a++;
             fitnessHistory.push_back(population[maxIndex()].fitness);
@@ -332,19 +332,116 @@ void ProblemInstance::run(std::ostream & os)
     //std::cout << "Sredni czas: " << time / 50 << std::endl;
 
 }
-
-void ProblemInstance::testMutationRate()
+void ProblemInstance::runTest(std::ostream& os)
 {
-    for (double n = 0.1; n<1; n+=0.1) {
-        mutationRate = n;
-        std::cout << "Tests done with mutation rate of " << mutationRate << std::endl;
-        for (int i = 1; i <= 3; i++) {
-            std::cout << " batch nuber : " << i << std::endl;
-            run();
-            std::cout << "-------------------------------" << std::endl;
+    //display();
+    Clock clock;
+    double time = 0;
+    int bestSolution = 0;
+    int sumReal = 0;
+
+    for (int times = 0; times < 50; times++)
+    {
+
+        initializeWeightsAndValues();
+        initializePopulation();
+
+        if (times == 0)
+        {
+            clock.start();
+            bestSolution = solveDynamic();
+            clock.end();
         }
+        clock.start();
+        int a = 0;
+        while (a < generations)
+        {
+            fitness();
+            select();
+            crossover2();
+            smallMutate(mutationRate);
+            a++;
+            //fitnessHistory.push_back(population[maxIndex()].fitness);
+        }
+        clock.end();
+        fitnessMax.clear();
+        time = time + clock.elapsedTime();
+        fitness();
+        int max = population[maxIndex()].fitness;
+        sumReal = sumReal + max;
+    }
+    sumReal = sumReal / 50;
+    double deviation = (double)sumReal / (double)bestSolution;
+    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 50<<std::endl;
+}
+void ProblemInstance::runOnce(std::ostream& os)
+{
+    //display();
+    Clock clock;
+    double time = 0;
+    int bestSolution = 0;
+    int sumReal = 0;
+
+    initializeWeightsAndValues();
+    initializePopulation();
+
+
+        clock.start();
+        int a = 0;
+        while (a < generations)
+        {
+            fitness();
+            select();
+            crossover2();
+            smallMutate(mutationRate);
+            a++;
+            fitnessHistory.push_back(population[maxIndex()].fitness);
+        }
+        clock.end();
+        fitnessMax.clear();
+        time = time + clock.elapsedTime();
+        fitness();
+        int max = population[maxIndex()].fitness;
+        sumReal = sumReal + max;
+}
+void ProblemInstance::testMutationRateForOptimum(std::ostream& os)
+{
+    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
+    
+    for (double n = 0.1; n<1; n+=0.1) {
+        std::cout<<"here"<<std::endl;
+        mutationRate = n;
+        runTest(os);
     }
 }
+void ProblemInstance::testPopulationSizeForOptimum(std::ostream& os)
+{
+    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
+
+    for (double n = 50; n<=500; n+=50) {
+        populationSize = n;
+        runTest(os);
+    }
+}
+void ProblemInstance::testGenerationsForOptimum(std::ostream& os)
+{
+    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
+
+    for (double n = 100; n<=1200; n+=50) {
+        generations = n;
+        runTest(os);
+    }
+}
+void ProblemInstance::testFitnessByGeneraiton(std::ostream& os)
+{
+    os<<"Fitness:"<<"\t"<<"generation:"<<std::endl;
+    runOnce(os);
+    for (int i = 0; i < fitnessHistory.size(); ++i) {
+        os<<fitnessHistory[i]<<"\t"<<i<<std::endl;
+    }
+
+}
+
 void ProblemInstance::fullTesting(std::ostream &os)
 {
     os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
