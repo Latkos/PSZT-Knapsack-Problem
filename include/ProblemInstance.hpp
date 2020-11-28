@@ -24,8 +24,8 @@ private:
     int generations=200;
 
     //DATA
-    int knapsackSize=60;
-    int problemSize=150;
+    int knapsackSize=60; //20
+    int problemSize=150; //50
  
     std::vector<int> weights, values, allFitness, fitnessHistory, fitnessMax;
     std::vector<Specimen> population;
@@ -66,6 +66,8 @@ public:
     void testFitnessByGeneraiton(std::ostream &os);
 
     void runOnce(std::ostream &os);
+
+    void testKnapsackSize(std::ostream &os);
 };
 
 #endif

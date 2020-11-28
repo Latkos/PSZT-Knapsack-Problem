@@ -372,7 +372,7 @@ void ProblemInstance::runTest(std::ostream& os)
     }
     sumReal = sumReal / 50;
     double deviation = (double)sumReal / (double)bestSolution;
-    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 50<<std::endl;
+    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<knapsackSize<<"\t"<<deviation<<"\t"<<time / 50<<std::endl;
 }
 void ProblemInstance::runOnce(std::ostream& os)
 {
@@ -407,9 +407,8 @@ void ProblemInstance::runOnce(std::ostream& os)
 void ProblemInstance::testMutationRateForOptimum(std::ostream& os)
 {
     os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-    
+
     for (double n = 0.1; n<1; n+=0.1) {
-        std::cout<<"here"<<std::endl;
         mutationRate = n;
         runTest(os);
     }
@@ -557,5 +556,12 @@ void ProblemInstance::problematicTesting(std::ostream &os)
                 }
             }
         }
+    }
+}
+void ProblemInstance::testKnapsackSize(std::ostream& os )
+{   os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"KnapsackSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
+    for (int i = 60; i <600 ; i+=10) {
+        knapsackSize = i;
+        runTest(os);
     }
 }
