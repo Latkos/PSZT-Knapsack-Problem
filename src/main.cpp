@@ -53,6 +53,6 @@ int main()
     {
         std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
     }
-    problem.testFitnessByGeneraitonByMutation(fitByGenByMut);
+    problem.testFitnessByGeneraitonByMutation(std::cout);
     std::cout<<"done"<<std::endl;
 }

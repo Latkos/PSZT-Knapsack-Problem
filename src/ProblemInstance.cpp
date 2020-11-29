@@ -591,7 +591,7 @@ void ProblemInstance::runOnceNoInit(std::ostream& os)
     int max = population[maxIndex()].fitness;
     sumReal = sumReal + max;
     for (int i = 0; i < fitnessHistory.size(); ++i) {
-        os<<mutationRate<<"\t"<<fitnessHistory[i]<<"\t"<<i<<std::endl;
+      //  os<<mutationRate<<"\t"<<fitnessHistory[i]<<"\t"<<i<<std::endl;
     }
     fitnessHistory.clear();
 }
@@ -599,8 +599,10 @@ void ProblemInstance::testFitnessByGeneraitonByMutation(std::ostream &os)
 {
     initializeWeightsAndValues();
     os<<"MutationRate:"<<"\t"<<"fitness:"<<"\t"<<"generation:"<<std::endl;
-    for (int i = 0.1; i <=1 ; i+=0.1) {
+    for (double i = 0.1; i <=1 ; i+=0.1) {
+        mutationRate = i;
         runOnceNoInit(os);
+        std::cout<<i<<std::endl;
     }
 
 }
