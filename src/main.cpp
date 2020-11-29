@@ -30,21 +30,29 @@ int main()
 //        std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
 //    }
 //    std::fstream fitnessAlig;
-//    mutation.open("Mutation test results.txt", std::ios::out|std::ios::trunc);
+//    fitnessAlig.open("Mutation test results.txt", std::ios::out|std::ios::trunc);
 //    if(fitnessAlig.good()==false)
 //    {
 //        std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
 //    }
-    std::fstream knapsackTEst;
+   /* std::fstream knapsackTEst;
     knapsackTEst.open("knapsackTEst results.txt", std::ios::out|std::ios::trunc);
     if(knapsackTEst.good()==false)
     {
         std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
-    }
+    }*/
     //problem.testMutationRateForOptimum(mutation);
     //problem.testPopulationSizeForOptimum(popSize);
     //problem.testGenerationsForOptimum(generations);
     //problem.testFitnessByGeneraiton(fitnessAlig);
-    problem.testKnapsackSize(std::cout);
+    //problem.testKnapsackSize(std::cout);
+
+    std::fstream fitByGenByMut;
+    fitByGenByMut.open("fitByGenByMut test results.txt", std::ios::out|std::ios::trunc);
+    if(fitByGenByMut.good()==false)
+    {
+        std::cout<<"Proba stworzenie pliku nie powiodla sie"<<std::endl;
+    }
+    problem.testFitnessByGeneraitonByMutation(fitByGenByMut);
     std::cout<<"done"<<std::endl;
 }

@@ -68,6 +68,10 @@ public:
     void runOnce(std::ostream &os);
 
     void testKnapsackSize(std::ostream &os);
+
+    void testFitnessByGeneraitonByMutation(std::ostream &os);
+
+    void runOnceNoInit(std::ostream &os);
 };
 
 #endif

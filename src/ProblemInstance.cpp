@@ -565,3 +565,42 @@ void ProblemInstance::testKnapsackSize(std::ostream& os )
         runTest(os);
     }
 }
+void ProblemInstance::runOnceNoInit(std::ostream& os)
+{
+    Clock clock;
+    double time = 0;
+    int bestSolution = 0;
+    int sumReal = 0;
+
+    initializePopulation();
+    clock.start();
+    int a = 0;
+    while (a < generations)
+    {
+        fitness();
+        select();
+        crossover2();
+        smallMutate(mutationRate);
+        a++;
+        fitnessHistory.push_back(population[maxIndex()].fitness);
+    }
+    clock.end();
+    fitnessMax.clear();
+    time = time + clock.elapsedTime();
+    fitness();
+    int max = population[maxIndex()].fitness;
+    sumReal = sumReal + max;
+    for (int i = 0; i < fitnessHistory.size(); ++i) {
+        os<<mutationRate<<"\t"<<fitnessHistory[i]<<"\t"<<i<<std::endl;
+    }
+    fitnessHistory.clear();
+}
+void ProblemInstance::testFitnessByGeneraitonByMutation(std::ostream &os)
+{
+    initializeWeightsAndValues();
+    os<<"MutationRate:"<<"\t"<<"fitness:"<<"\t"<<"generation:"<<std::endl;
+    for (int i = 0.1; i <=1 ; i+=0.1) {
+        runOnceNoInit(os);
+    }
+
+}
