@@ -4,37 +4,37 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <iostream>
 #include "RandomGenerator.hpp"
 #include "Clock.hpp"
 #include "Specimen.hpp"
+
 class ProblemInstance
 {
-private:
+public:
     RandomGenerator randomGen;
     Clock clock;
     int totalItemWeight=0;
     int testsAmount;
     int realMax = 0;
-
-
-    //MODIFY THOSE
-    double elitismRate=0.15; //most probably DO NOT modify it, I found that 0.1 is too little and 0.2 too much, but you can try...
+    //parameters estabilished before the main testing phase
+    double crossoverRate=0.8;
+    double elitismRate=0.15;
+    //parameters estabilished by testing
     double mutationRate=0.5;
     int populationSize = 250;
     int generations=200;
 
-    //DATA
-    int knapsackSize=60; //20
-    int problemSize=150; //50
+    //default data
+    int knapsackSize=60;
+    int problemSize=100;
  
-    std::vector<int> weights, values, allFitness, fitnessHistory, fitnessMax;
+    std::vector<int> weights, values, allFitness, fitnessHistory;
     std::vector<Specimen> population;
     std::vector<Specimen> parents;
-
-public:
     void initializeWeightsAndValues();
     void initializePopulation();
-    void display();
+    void displayWeightsAndValues();
     int individualFitness(int index);
     void fitness();
     void select();
@@ -45,11 +45,12 @@ public:
     void smallMutate(double mutationRate);
     void run(std::ostream & os = std::cout);
     void run2(std::ostream & os = std::cout);
-    int maxIndex();
+    int maxFitness();
     int solveDynamic();
+    int bestSpecimenIndex();
     int max(int a, int b);
     void initializePopulationWithZeroes();
-    void testMutationRate();
+    /*void testMutationRate();
     void fullTesting(std::ostream& os = std::cout);
     void fullTesting2(std::ostream& os = std::cout);
 
@@ -69,9 +70,11 @@ public:
 
     void testKnapsackSize(std::ostream &os);
 
-    void testFitnessByGeneraitonByMutation(std::ostream &os);
+    void testFitnessByGenerationByMutation(std::ostream &os);
 
-    void runOnceNoInit(std::ostream &os);
+    void runOnceNoInit(std::ostream &os);*/
+
+
 };
 
 #endif

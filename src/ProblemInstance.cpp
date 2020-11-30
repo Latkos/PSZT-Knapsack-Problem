@@ -2,7 +2,6 @@
 #include <random>
 #include "ProblemInstance.hpp"
 
-
 void ProblemInstance::initializeWeightsAndValues()
 {
     for (int a = 0; a < problemSize; a++)
@@ -18,8 +17,8 @@ void ProblemInstance::initializeWeightsAndValues()
 
 void ProblemInstance::initializePopulation()
 {
-    population.clear();
-    double itemProbability = knapsackSize / (2 * totalItemWeight);
+    population.clear();                                            //in case this function is called more than once
+    double itemProbability = knapsackSize / (2 * totalItemWeight); //our own function ensuring the amount of items depends on how many items there are and how much knapsack can hold
     for (int a = 0; a < populationSize; a++)
     {
         Specimen newSpecimen(problemSize);
@@ -28,7 +27,7 @@ void ProblemInstance::initializePopulation()
     }
 }
 
-void ProblemInstance::display()
+void ProblemInstance::displayWeightsAndValues()
 {
     std::cout << "WEIGHTS" << std::endl;
     for (int a = 0; a < problemSize; a++)
@@ -41,21 +40,7 @@ void ProblemInstance::display()
 void ProblemInstance::fitness()
 {
     for (int a = 0; a < populationSize; a++)
-    {
         population[a].fitness = individualFitness(a);
-    }
-    fitnessMax.push_back(population[maxIndex()].fitness);
-}
-
-int ProblemInstance::maxIndex()
-{
-    int max = 0;
-    for (int a = 0; a < populationSize; a++)
-    {
-        if (population[a].fitness > population[max].fitness)
-            max = a;
-    }
-    return max;
 }
 
 int ProblemInstance::individualFitness(int index)
@@ -68,25 +53,28 @@ int ProblemInstance::individualFitness(int index)
         sumValues = sumValues + values[c] * population[index].genes[c];
     }
     if (sumWeights <= knapsackSize)
-    {
-        if (sumValues > realMax)
-            realMax = sumValues;
         return sumValues;
-    }
     else
-    {
-        //int result = sumValues - (sumWeights - knapsackSize) * 380*2;
-        int result = 0;
-        return result;
-    }
+        return 0;
 }
 
-bool compareFitness(Specimen a, Specimen b)
+int ProblemInstance::maxFitness()
+{
+    int max = 0;
+    for (int a = 0; a < populationSize; a++)
+    {
+        if (population[a].fitness > max)
+            max = population[a].fitness;
+    }
+    return max;
+}
+
+bool compareFitness(Specimen a, Specimen b) //needed for std::sort
 {
     return a.fitness > b.fitness;
 }
 
-void ProblemInstance::select()
+void ProblemInstance::select() //tournament selection
 {
     std::vector<Specimen> tempPopulation;
     std::sort(population.begin(), population.end(), compareFitness);
@@ -99,7 +87,7 @@ void ProblemInstance::select()
     {
         int random1 = randomGen.generateInt(0, populationSize - 1);
         int random2 = randomGen.generateInt(0, populationSize - 1);
-        if (population[random1].fitness > population[random2].fitness)
+        if (population[random1].fitness > population[random2].fitness) //pick two specimen for the tournament
             tempPopulation.push_back(population[random1]);
         else
             tempPopulation.push_back(population[random2]);
@@ -108,7 +96,7 @@ void ProblemInstance::select()
     population = tempPopulation;
 }
 
-void ProblemInstance::mutate()
+void ProblemInstance::mutate() //not used in our current solution, left if someone potentially wants to see how it works
 {
     for (int a = 0; a < populationSize; a++)
     {
@@ -129,7 +117,8 @@ void ProblemInstance::mutate()
         }
     }
 }
-void ProblemInstance::smallMutate(double mutationRate)
+
+void ProblemInstance::smallMutate(double mutationRate) //our version of mutation, flips one bit
 {
     for (int a = 0; a < populationSize; a++)
     {
@@ -144,20 +133,19 @@ void ProblemInstance::smallMutate(double mutationRate)
         }
     }
 }
-void ProblemInstance::crossover2()
+void ProblemInstance::crossover() //the standard crossover we use
 {
     std::shuffle(population.begin(), population.end(), std::default_random_engine(randomGen.seed));
     std::vector<Specimen> tempPopulation;
     for (int a = 0; a < populationSize; a++)
     {
         double probability = randomGen.generateProbability();
-        if (probability > 0.8 || a == populationSize - 1)
+        if (probability > crossoverRate || a == populationSize - 1)
             tempPopulation.push_back(population[a]);
         else
         {
             Specimen child(problemSize);
             int point = randomGen.generateInt(0, problemSize - 1);
-            //int point=populationSize/2;
             for (int b = 0; b < point; b++)
             {
                 child.genes.push_back(population[a].genes[b]);
@@ -173,7 +161,7 @@ void ProblemInstance::crossover2()
     population = tempPopulation;
 }
 
-void ProblemInstance::crossover()
+void ProblemInstance::crossover2() //the crossover we abandoned, left if someone potentially wants to see how it works
 {
     std::vector<Specimen> tempPopulation;
     for (int a = 0; a < populationSize / 2; a++)
@@ -206,7 +194,8 @@ void ProblemInstance::crossover()
     population.clear();
     population = tempPopulation;
 }
-void ProblemInstance::uniformCrossover()
+
+void ProblemInstance::uniformCrossover() //not used in our solution, left if someone potentially wants to see how it works
 {
     std::vector<Specimen> tempPopulation;
     for (int a = 0; a < populationSize; a = a + 2)
@@ -246,12 +235,13 @@ void ProblemInstance::uniformCrossover()
         }
     }
 }
-int ProblemInstance::max(int a, int b)
+
+int ProblemInstance::max(int a, int b) //needed for dynamic programming
 {
     return (a > b) ? a : b;
 }
 
-int ProblemInstance::solveDynamic()
+int ProblemInstance::solveDynamic() //dynamic programming solution
 {
     int i, w;
     int xwidth = problemSize + 1;
@@ -273,7 +263,17 @@ int ProblemInstance::solveDynamic()
     return KArray[knapsackSize * xwidth + problemSize];
 }
 
-void ProblemInstance::initializePopulationWithZeroes()
+int ProblemInstance::bestSpecimenIndex()
+{
+    for (int a = 0; a < populationSize; a++)
+    {
+        if (population[a].fitness ==maxFitness())
+            return a;
+    }
+    return 0;
+}
+
+void ProblemInstance::initializePopulationWithZeroes() //not used in our solution, left if someone potentially wants to see how it works
 {
     for (int a = 0; a < populationSize; a++)
     {
@@ -284,7 +284,7 @@ void ProblemInstance::initializePopulationWithZeroes()
     }
 }
 
-void ProblemInstance::run(std::ostream & os)
+void ProblemInstance::run(std::ostream &os)
 {
     initializeWeightsAndValues();
     //display();
@@ -295,194 +295,9 @@ void ProblemInstance::run(std::ostream & os)
     for (int times = 0; times < 20; times++)
     {
         initializePopulation();
-        //initializePopulationWithZeroes();
         if (times == 0)
-        {
-            clock.start();
             bestSolution = solveDynamic();
-            clock.end();
-            //std::cout << "\nNAJLEPSZA: " << bestSolution << " " << clock.elapsedTime() << std::endl;
-        }
-        clock.start();
-        int a = 0;
-        while (a < generations)
-        {
-            fitness();
-            select();
-            crossover2();
-            smallMutate(mutationRate);
-            a++;
-            fitnessHistory.push_back(population[maxIndex()].fitness);
-        }
-        clock.end();
-        fitnessMax.clear();
-        time = time + clock.elapsedTime();
-        //std::cout << clock.elapsedTime() << std::endl;
-        fitness();
-        int max = population[maxIndex()].fitness;
-        //std::cout << "BEST AT THE END: " << max << std::endl;
-        //std::cout << "Real max found was " << realMax << std::endl;
-        //std::cout << "******" << std::endl;
-        sumReal = sumReal + max;
-    }
-    sumReal = sumReal / 20;
-    double deviation = (double)sumReal / (double)bestSolution;
-    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 20<<std::endl;
-    //std::cout << "Srednie odchylenie: " << deviation << std::endl;
-    //std::cout << "Sredni czas: " << time / 50 << std::endl;
 
-}
-void ProblemInstance::runTest(std::ostream& os)
-{
-    //display();
-    Clock clock;
-    double time = 0;
-    int bestSolution = 0;
-    int sumReal = 0;
-
-    for (int times = 0; times < 50; times++)
-    {
-
-        initializeWeightsAndValues();
-        initializePopulation();
-
-        if (times == 0)
-        {
-            clock.start();
-            bestSolution = solveDynamic();
-            clock.end();
-        }
-        clock.start();
-        int a = 0;
-        while (a < generations)
-        {
-            fitness();
-            select();
-            crossover2();
-            smallMutate(mutationRate);
-            a++;
-            //fitnessHistory.push_back(population[maxIndex()].fitness);
-        }
-        clock.end();
-        fitnessMax.clear();
-        time = time + clock.elapsedTime();
-        fitness();
-        int max = population[maxIndex()].fitness;
-        sumReal = sumReal + max;
-    }
-    sumReal = sumReal / 50;
-    double deviation = (double)sumReal / (double)bestSolution;
-    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<knapsackSize<<"\t"<<deviation<<"\t"<<time / 50<<std::endl;
-}
-void ProblemInstance::runOnce(std::ostream& os)
-{
-    //display();
-    Clock clock;
-    double time = 0;
-    int bestSolution = 0;
-    int sumReal = 0;
-
-    initializeWeightsAndValues();
-    initializePopulation();
-
-
-        clock.start();
-        int a = 0;
-        while (a < generations)
-        {
-            fitness();
-            select();
-            crossover2();
-            smallMutate(mutationRate);
-            a++;
-            fitnessHistory.push_back(population[maxIndex()].fitness);
-        }
-        clock.end();
-        fitnessMax.clear();
-        time = time + clock.elapsedTime();
-        fitness();
-        int max = population[maxIndex()].fitness;
-        sumReal = sumReal + max;
-}
-void ProblemInstance::testMutationRateForOptimum(std::ostream& os)
-{
-    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-
-    for (double n = 0.1; n<1; n+=0.1) {
-        mutationRate = n;
-        runTest(os);
-    }
-}
-void ProblemInstance::testPopulationSizeForOptimum(std::ostream& os)
-{
-    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-
-    for (double n = 50; n<=500; n+=50) {
-        populationSize = n;
-        runTest(os);
-    }
-}
-void ProblemInstance::testGenerationsForOptimum(std::ostream& os)
-{
-    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-
-    for (double n = 100; n<=1200; n+=50) {
-        generations = n;
-        runTest(os);
-    }
-}
-void ProblemInstance::testFitnessByGeneraiton(std::ostream& os)
-{
-    os<<"Fitness:"<<"\t"<<"generation:"<<std::endl;
-    runOnce(os);
-    for (int i = 0; i < fitnessHistory.size(); ++i) {
-        os<<fitnessHistory[i]<<"\t"<<i<<std::endl;
-    }
-
-}
-
-void ProblemInstance::fullTesting(std::ostream &os)
-{
-    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-    for (double n = 0.1; n<1; n+=0.2)
-    {
-        mutationRate = n;
-        for (int i = 50;i<550;i+=100)
-        {
-            populationSize = i;
-            for (int j = 200; j < 1200; j+=200)
-            {
-             generations = j;
-                for (int k = 50; k <= 150 ; k+=50)
-                {
-                    problemSize = k;
-                    //os<<n<<"\t"<<i<<"\t"<<j<<"\t"<<k;
-                    run(os);
-                }
-            }
-        }
-    }
-}
-
-void ProblemInstance::run2(std::ostream &os)
-{
-    initializeWeightsAndValues();
-    //display();
-    Clock clock;
-    double time = 0;
-    int bestSolution = 0;
-    int sumReal = 0;
-    for (int times = 0; times < 20; times++)
-    {
-        initializePopulation();
-        initializePopulationWithZeroes();
-        if (times == 0)
-        {
-            clock.start();
-            bestSolution = solveDynamic();
-            clock.end();
-            //std::cout << "\nNAJLEPSZA: " << bestSolution << " " << clock.elapsedTime() << std::endl;
-        }
         clock.start();
         int a = 0;
         while (a < generations)
@@ -492,117 +307,18 @@ void ProblemInstance::run2(std::ostream &os)
             crossover();
             smallMutate(mutationRate);
             a++;
-            fitnessHistory.push_back(population[maxIndex()].fitness);
+            fitnessHistory.push_back(maxFitness());
         }
         clock.end();
-        fitnessMax.clear();
         time = time + clock.elapsedTime();
-        //std::cout << clock.elapsedTime() << std::endl;
         fitness();
-        int max = population[maxIndex()].fitness;
-        //std::cout << "BEST AT THE END: " << max << std::endl;
-        //std::cout << "Real max found was " << realMax << std::endl;
-        //std::cout << "******" << std::endl;
+        int max = maxFitness();
         sumReal = sumReal + max;
     }
     sumReal = sumReal / 20;
     double deviation = (double)sumReal / (double)bestSolution;
-    os<<mutationRate<<"\t"<<populationSize<<"\t"<<generations<<"\t"<<problemSize<<"\t"<<deviation<<"\t"<<time / 20<<std::endl;
+    os << mutationRate << "\t" << populationSize << "\t" << generations << "\t" << problemSize << "\t" << deviation << "\t" << time / 20 << std::endl;
     //std::cout << "Srednie odchylenie: " << deviation << std::endl;
     //std::cout << "Sredni czas: " << time / 50 << std::endl;
-
 }
 
-void ProblemInstance::fullTesting2(std::ostream &os)
-{
-    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-    for (double n = 0.1; n<1; n+=0.2)
-    {
-        mutationRate = n;
-        for (int i = 50;i<550;i+=100)
-        {
-            populationSize = i;
-            for (int j = 200; j < 1200; j+=200)
-            {
-                generations = j;
-                for (int k = 50; k <= 150 ; k+=50)
-                {
-                    problemSize = k;
-                    //os<<n<<"\t"<<i<<"\t"<<j<<"\t"<<k;
-                    run2(os);
-                }
-            }
-        }
-    }
-}
-
-void ProblemInstance::problematicTesting(std::ostream &os)
-{
-    os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-    for (double n = 0.7; n<1; n+=0.2)
-    {
-        mutationRate = n;
-        for (int i = 50;i<550;i+=100)
-        {
-            populationSize = i;
-            for (int j = 400; j < 1200; j+=200)
-            {
-                generations = j;
-                for (int k = 50; k <= 150 ; k+=50)
-                {
-                    problemSize = k;
-                    //os<<n<<"\t"<<i<<"\t"<<j<<"\t"<<k;
-                    run(os);
-                }
-            }
-        }
-    }
-}
-void ProblemInstance::testKnapsackSize(std::ostream& os )
-{   os<<"Mutation rate"<<"\t"<<"population size"<<"\t"<<"generations"<<"\t"<<"problemSize"<<"\t"<<"KnapsackSize"<<"\t"<<"deviation"<<"\t"<<"time"<<std::endl;
-    for (int i = 60; i <600 ; i+=10) {
-        knapsackSize = i;
-        runTest(os);
-    }
-}
-void ProblemInstance::runOnceNoInit(std::ostream& os)
-{
-    Clock clock;
-    double time = 0;
-    int bestSolution = 0;
-    int sumReal = 0;
-
-    initializePopulation();
-    clock.start();
-    int a = 0;
-    while (a < generations)
-    {
-        fitness();
-        select();
-        crossover2();
-        smallMutate(mutationRate);
-        a++;
-        fitnessHistory.push_back(population[maxIndex()].fitness);
-    }
-    clock.end();
-    fitnessMax.clear();
-    time = time + clock.elapsedTime();
-    fitness();
-    int max = population[maxIndex()].fitness;
-    sumReal = sumReal + max;
-    for (int i = 0; i < fitnessHistory.size(); ++i) {
-      //  os<<mutationRate<<"\t"<<fitnessHistory[i]<<"\t"<<i<<std::endl;
-    }
-    fitnessHistory.clear();
-}
-void ProblemInstance::testFitnessByGeneraitonByMutation(std::ostream &os)
-{
-    initializeWeightsAndValues();
-    os<<"MutationRate:"<<"\t"<<"fitness:"<<"\t"<<"generation:"<<std::endl;
-    for (double i = 0.1; i <=1 ; i+=0.1) {
-        mutationRate = i;
-        runOnceNoInit(os);
-        std::cout<<i<<std::endl;
-    }
-
-}
