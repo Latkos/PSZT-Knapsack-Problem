@@ -6,45 +6,8 @@ Tester::Tester(ProblemInstance &givenProblem)
     problem = givenProblem;
 }
 
-void Tester::run(std::ostream &os)
-{
-    problem.initializeWeightsAndValues();
-    Clock clock;
-    time = 0;
-    double quality = 0;
-    int bestSolution = 0;
-    int sumReal = 0;
-    for (int times = 0; times < 20; times++)
-    {
-        problem.initializePopulation();
-        if (times == 0)
-            bestSolution = problem.solveDynamic();
-        clock.start();
-        int a = 0;
-        while (a < problem.generations)
-        {
-            problem.fitness();
-            problem.select();
-            problem.crossover();
-            problem.smallMutate(problem.mutationRate);
-            a++;
-            //problem.fitnessHistory.push_back(problem.maxFitness());
-        }
-        clock.end();
-        time = time + clock.elapsedTime();
-        problem.fitness();
-        int max = problem.maxFitness();
-        if (max == 0)
-            sumReal = sumReal + max;
-    }
-    time = time / 20;
-    sumReal = sumReal / 20;
-    quality = (double)sumReal / (double)bestSolution;
-    os << "CZAS " << time << " JAKOSC " << quality << std::endl;
-    //os << problem.mutationRate << "\t" << problem.populationSize << "\t" << problem.generations << "\t" << problem.problemSize << "\t" << quality << "\t" << time / 20 << std::endl;
-}
 
-void Tester::runTest(std::ostream &os)
+void Tester::runTest(std::ostream &os, bool d)
 {
     //display();
     Clock clock;
@@ -54,7 +17,8 @@ void Tester::runTest(std::ostream &os)
 
     for (int times = 0; times < 50; times++)
     {
-        problem.initializeWeightsAndValues();
+        if (!d)
+            problem.initializeWeightsAndValues();
         problem.initializePopulation();
 
         if (times == 0)
@@ -84,12 +48,13 @@ void Tester::runTest(std::ostream &os)
     os << problem.mutationRate << "\t" << problem.populationSize << "\t" << problem.generations << "\t" << problem.problemSize << "\t" << problem.knapsackSize << "\t" << quality << "\t" << time / 50 << std::endl;
 }
 
-void Tester::runOnce(std::ostream &os)
+void Tester::runOnce(std::ostream &os, bool d)
 {
     //display();
     Clock clock;
     int bestSolution = 0;
-    problem.initializeWeightsAndValues();
+    if (!d)
+        problem.initializeWeightsAndValues();
     problem.initializePopulation();
     problem.fitnessHistory.clear();
     clock.start();
@@ -212,40 +177,7 @@ void Tester::fullTesting(std::ostream &os)
                 for (int k = 50; k <= 150; k += 50)
                 {
                     problem.problemSize = k;
-                    run(os);
-                }
-            }
-        }
-    }
-}
-
-void Tester::problematicTesting(std::ostream &os)
-{
-    os << "Mutation rate"
-       << "\t"
-       << "population size"
-       << "\t"
-       << "generations"
-       << "\t"
-       << "problemSize"
-       << "\t"
-       << "quality"
-       << "\t"
-       << "time" << std::endl;
-    for (double n = 0.7; n < 1; n += 0.2)
-    {
-        problem.mutationRate = n;
-        for (int i = 50; i < 550; i += 100)
-        {
-            problem.populationSize = i;
-            for (int j = 400; j < 1200; j += 200)
-            {
-                problem.generations = j;
-                for (int k = 50; k <= 150; k += 50)
-                {
-                    problem.problemSize = k;
-                    //os<<n<<"\t"<<i<<"\t"<<j<<"\t"<<k;
-                    run(os);
+                    runTest(os);
                 }
             }
         }
@@ -273,34 +205,7 @@ void Tester::testKnapsackSize(std::ostream &os)
         runTest(os);
     }
 }
-void Tester::runOnceNoInit(std::ostream &os)
-{
-    Clock clock;
-    double bestSolution = 0;
-    int sumReal = 0;
-    problem.initializePopulation();
-    clock.start();
-    int a = 0;
-    while (a < problem.generations)
-    {
-        problem.fitness();
-        problem.select();
-        problem.crossover();
-        problem.smallMutate(problem.mutationRate);
-        a++;
-        problem.fitnessHistory.push_back(problem.maxFitness());
-    }
-    clock.end();
-    time = time + clock.elapsedTime();
-    problem.fitness();
-    int max = problem.maxFitness();
-    sumReal = sumReal + max;
-    bestSolution = (double)problem.solveDynamic();
-    quality = sumReal / bestSolution;
-    problem.fitnessHistory.clear();
-    os << "Znaleziono rozwiazanie: " << max << " w czasie: " << time << std::endl;
-    os << "Jakosc tego rozwiazania w porownaniu do optymalnego to " << quality << std::endl;
-}
+
 
 void Tester::testFitnessByGenerationByMutation(std::ostream &os)
 {
@@ -313,8 +218,8 @@ void Tester::testFitnessByGenerationByMutation(std::ostream &os)
     for (double i = 0.1; i <= 1; i += 0.1)
     {
         problem.mutationRate = i;
-        runOnceNoInit(os);
-        os << i << std::endl;
+        runOnce(os,1);
+
     }
 }
 
@@ -346,7 +251,7 @@ void Tester::testPisinger(std::string fileName)
         //we have initialised the weights and values, we need to run the algorithm now
         //problem.displayWeightsAndValues();
         problem.knapsackSize = 0.05 * problem.totalItemWeight;
-        runOnceNoInit(std::cout);
+        runTest(std::cout,1);
         problem.totalItemWeight = 0;
     }
     avgTime = time / 100;

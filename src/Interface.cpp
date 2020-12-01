@@ -54,6 +54,8 @@ void Interface::handleTesting()
     std::cout << "4. Wplyw prawdopodobienstwa mutacji" << std::endl;
     std::cout << "5. Wplyw czynnika S (stosunku pojemnosci plecaka do sumarycznej wagi przedmiotow) na czas wykonania i jakosc algorytmu" << std::endl;
     std::cout << "6. Analiza danych skorelowanych i nieskorelowanych" << std::endl;
+    std::cout << "7. Przykladowy przebieg wzrostu fitness'u dla kolejnych pokolen" << std::endl;
+    std::cout << "8. Przykladowy wplyw czynnika mutacji na przebieg wzrostu fitness'u dla kolejnych pokolen" << std::endl;
     int number = 0;
     std::cin >> number;
     switch (number)
@@ -82,6 +84,14 @@ void Interface::handleTesting()
         tester.testPisinger("dane1.txt");
         tester.testPisinger("dane2.txt");
         tester.testPisinger("dane3.txt");
+        break;
+
+    case 7:
+        tester.testFitnessByGeneration();
+        break;
+
+    case 8:
+        tester.testFitnessByGenerationByMutation();
         break;
 
     default:
