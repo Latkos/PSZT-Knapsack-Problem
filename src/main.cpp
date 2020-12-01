@@ -10,5 +10,8 @@ int main()
     ProblemInstance problem;
     Interface interface(problem);
     interface.askUserToChoose();
-    std::cout << "done" << std::endl;
+    std::cout << "TETETETTET";
+    std::cin.clear();
+    fflush(stdin);
+    std::cin.get();
 }
