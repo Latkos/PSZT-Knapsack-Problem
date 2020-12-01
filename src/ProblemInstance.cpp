@@ -96,8 +96,6 @@ void ProblemInstance::select() //tournament selection
     population = tempPopulation;
 }
 
-
-
 void ProblemInstance::smallMutate(double mutationRate) //our version of mutation, flips one bit
 {
     for (int a = 0; a < populationSize; a++)
@@ -141,7 +139,6 @@ void ProblemInstance::crossover() //the standard crossover we use
     population = tempPopulation;
 }
 
-
 int ProblemInstance::max(int a, int b) //needed for dynamic programming
 {
     return (a > b) ? a : b;
@@ -169,120 +166,135 @@ int ProblemInstance::solveDynamic() //dynamic programming solution
     return KArray[knapsackSize * xwidth + problemSize];
 }
 
-int ProblemInstance::bestSpecimenIndex()
+void ProblemInstance::displayBestSpecimen()
 {
     for (int a = 0; a < populationSize; a++)
     {
-        if (population[a].fitness ==maxFitness())
-            return a;
-    }
-    return 0;
-}
-
-void ProblemInstance::mutate() //not used in our current solution, left if someone potentially wants to see how it works
-{
-    for (int a = 0; a < populationSize; a++)
-    {
-        double probability = randomGen.generateProbability();
-        if (probability < mutationRate)
+        if (population[a].fitness == maxFitness())
         {
+            std::cout << "\nNajlepszy osobnik:" << std::endl;
+            std::vector<int> itemNumbers;
             for (int b = 0; b < problemSize; b++)
             {
-                probability = randomGen.generateProbability();
-                if (probability < 0.1)
+                std::cout << population[a].genes[b];
+                if (population[a].genes[b] == 1)
                 {
-                    if (population[a].genes[b] == 1)
-                        population[a].genes[b] = 0;
-                    else
-                        population[a].genes[b] = 1;
+                    itemNumbers.push_back(b);
+                }
+            }
+            std::cout << "\n Czyli przedmioty do wziecia, liczac od 1 do "<<problemSize<<" to:";
+            for (unsigned int b = 0; b < itemNumbers.size(); b++)
+                std::cout << itemNumbers[b]+1<<" ";
+            std::cout<<std::endl;
+            return;
+        }
+    }
+}
+
+    void ProblemInstance::mutate() //not used in our current solution, left if someone potentially wants to see how it works
+    {
+        for (int a = 0; a < populationSize; a++)
+        {
+            double probability = randomGen.generateProbability();
+            if (probability < mutationRate)
+            {
+                for (int b = 0; b < problemSize; b++)
+                {
+                    probability = randomGen.generateProbability();
+                    if (probability < 0.1)
+                    {
+                        if (population[a].genes[b] == 1)
+                            population[a].genes[b] = 0;
+                        else
+                            population[a].genes[b] = 1;
+                    }
                 }
             }
         }
     }
-}
 
-void ProblemInstance::initializePopulationWithZeroes() //not used in our solution, left if someone potentially wants to see how it works
-{
-    for (int a = 0; a < populationSize; a++)
+    void ProblemInstance::initializePopulationWithZeroes() //not used in our solution, left if someone potentially wants to see how it works
     {
-        for (int b = 0; b < problemSize; b++)
+        for (int a = 0; a < populationSize; a++)
         {
-            population[a].genes[b] = 0;
-        }
-    }
-}
-
-void ProblemInstance::uniformCrossover() //not used in our solution, left if someone potentially wants to see how it works
-{
-    std::vector<Specimen> tempPopulation;
-    for (int a = 0; a < populationSize; a = a + 2)
-    {
-        if (a == populationSize - 1 && populationSize % 2 == 1)
-        {
-            tempPopulation.push_back(population[a]);
-            break;
-        }
-        double probability = randomGen.generateProbability();
-        if (probability > 0.4)
-        {
-            tempPopulation.push_back(population[a]);
-            tempPopulation.push_back(population[a + 1]);
-        }
-        else
-        {
-            Specimen child1(problemSize), child2(problemSize);
             for (int b = 0; b < problemSize; b++)
             {
-                int bitDecider = randomGen.generateInt(0, 1);
-                if (bitDecider == 0)
+                population[a].genes[b] = 0;
+            }
+        }
+    }
+
+    void ProblemInstance::uniformCrossover() //not used in our solution, left if someone potentially wants to see how it works
+    {
+        std::vector<Specimen> tempPopulation;
+        for (int a = 0; a < populationSize; a = a + 2)
+        {
+            if (a == populationSize - 1 && populationSize % 2 == 1)
+            {
+                tempPopulation.push_back(population[a]);
+                break;
+            }
+            double probability = randomGen.generateProbability();
+            if (probability > 0.4)
+            {
+                tempPopulation.push_back(population[a]);
+                tempPopulation.push_back(population[a + 1]);
+            }
+            else
+            {
+                Specimen child1(problemSize), child2(problemSize);
+                for (int b = 0; b < problemSize; b++)
+                {
+                    int bitDecider = randomGen.generateInt(0, 1);
+                    if (bitDecider == 0)
+                        child1.genes.push_back(population[a].genes[b]);
+                    else
+                        child1.genes.push_back(population[a + 1].genes[b]);
+                }
+                for (int b = 0; b < problemSize; b++)
+                {
+                    int bitDecider = randomGen.generateInt(0, 1);
+                    if (bitDecider == 0)
+                        child2.genes.push_back(population[a].genes[b]);
+                    else
+                        child2.genes.push_back(population[a + 1].genes[b]);
+                }
+                tempPopulation.push_back(child1);
+                tempPopulation.push_back(child2);
+            }
+        }
+    }
+
+    void ProblemInstance::crossover2() //the crossover we abandoned, left if someone potentially wants to see how it works
+    {
+        std::vector<Specimen> tempPopulation;
+        for (int a = 0; a < populationSize / 2; a++)
+        {
+            double probability = randomGen.generateProbability();
+            if (probability > 0.8) //CrossoverRatio crossover ratio
+            {
+                tempPopulation.push_back(population[a]);
+                tempPopulation.push_back(population[a + 1]);
+            }
+            else
+            {
+                Specimen child1(problemSize), child2(problemSize);
+                int point = randomGen.generateInt(0, problemSize - 1);
+                //int point=populationSize/2;
+                for (int b = 0; b < point; b++)
+                {
                     child1.genes.push_back(population[a].genes[b]);
-                else
-                    child1.genes.push_back(population[a + 1].genes[b]);
-            }
-            for (int b = 0; b < problemSize; b++)
-            {
-                int bitDecider = randomGen.generateInt(0, 1);
-                if (bitDecider == 0)
-                    child2.genes.push_back(population[a].genes[b]);
-                else
                     child2.genes.push_back(population[a + 1].genes[b]);
+                }
+                for (int b = point; b < problemSize; b++)
+                {
+                    child1.genes.push_back(population[a + 1].genes[b]);
+                    child2.genes.push_back(population[a].genes[b]);
+                }
+                tempPopulation.push_back(child1);
+                tempPopulation.push_back(child2);
             }
-            tempPopulation.push_back(child1);
-            tempPopulation.push_back(child2);
         }
+        population.clear();
+        population = tempPopulation;
     }
-}
-
-void ProblemInstance::crossover2() //the crossover we abandoned, left if someone potentially wants to see how it works
-{
-    std::vector<Specimen> tempPopulation;
-    for (int a = 0; a < populationSize / 2; a++)
-    {
-        double probability = randomGen.generateProbability();
-        if (probability > 0.8) //CrossoverRatio crossover ratio
-        {
-            tempPopulation.push_back(population[a]);
-            tempPopulation.push_back(population[a + 1]);
-        }
-        else
-        {
-            Specimen child1(problemSize), child2(problemSize);
-            int point = randomGen.generateInt(0, problemSize - 1);
-            //int point=populationSize/2;
-            for (int b = 0; b < point; b++)
-            {
-                child1.genes.push_back(population[a].genes[b]);
-                child2.genes.push_back(population[a + 1].genes[b]);
-            }
-            for (int b = point; b < problemSize; b++)
-            {
-                child1.genes.push_back(population[a + 1].genes[b]);
-                child2.genes.push_back(population[a].genes[b]);
-            }
-            tempPopulation.push_back(child1);
-            tempPopulation.push_back(child2);
-        }
-    }
-    population.clear();
-    population = tempPopulation;
-}

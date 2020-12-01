@@ -44,7 +44,7 @@ public:
     void smallMutate(double mutationRate);
     int maxFitness();
     int solveDynamic();
-    int bestSpecimenIndex();
+    void displayBestSpecimen();
     int max(int a, int b);
 
     //unused functions which we used for testing and therefore left them for documentation purposes

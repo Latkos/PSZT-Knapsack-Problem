@@ -6,7 +6,6 @@ Tester::Tester(ProblemInstance &givenProblem)
     problem = givenProblem;
 }
 
-
 void Tester::runTest(std::ostream &os, bool d)
 {
     //display();
@@ -19,14 +18,10 @@ void Tester::runTest(std::ostream &os, bool d)
     {
         if (!d)
             problem.initializeWeightsAndValues();
-        problem.initializePopulation();
 
+        problem.initializePopulation();
         if (times == 0)
-        {
-            clock.start();
             bestSolution = problem.solveDynamic();
-            clock.end();
-        }
         clock.start();
         int a = 0;
         while (a < problem.generations)
@@ -75,7 +70,8 @@ void Tester::runOnce(std::ostream &os, bool d)
     bestSolution = problem.solveDynamic();
     quality = quality + max / double(bestSolution);
     os << "Znaleziono rozwiazanie: " << max << " w czasie: " << time << std::endl;
-    os << "Jakosc tego rozwiazania w porownaniu do optymalnego to" << quality << std::endl;
+    os << "Jakosc tego rozwiazania w porownaniu do optymalnego to " << quality << std::endl;
+    problem.displayBestSpecimen();
 }
 
 void Tester::testMutationRateForOptimum(std::ostream &os)
@@ -206,7 +202,6 @@ void Tester::testKnapsackSize(std::ostream &os)
     }
 }
 
-
 void Tester::testFitnessByGenerationByMutation(std::ostream &os)
 {
     problem.initializeWeightsAndValues();
@@ -218,8 +213,7 @@ void Tester::testFitnessByGenerationByMutation(std::ostream &os)
     for (double i = 0.1; i <= 1; i += 0.1)
     {
         problem.mutationRate = i;
-        runOnce(os,1);
-
+        runOnce(os, 1);
     }
 }
 
@@ -250,9 +244,10 @@ void Tester::testPisinger(std::string fileName)
         }
         //we have initialised the weights and values, we need to run the algorithm now
         //problem.displayWeightsAndValues();
-        problem.knapsackSize = 0.05 * problem.totalItemWeight;
-        runTest(std::cout,1);
+        problem.knapsackSize = 0.5 * problem.totalItemWeight;
+        runTest(std::cout, 1);
         problem.totalItemWeight = 0;
+        problem.population.clear();
     }
     avgTime = time / 100;
     avgQuality = quality / 100;

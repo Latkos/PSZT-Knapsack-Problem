@@ -11,6 +11,7 @@ private:
     void handleOneRun();
     void handleTesting();
     ProblemInstance problem;
+
 public:
     Interface(ProblemInstance &givenProblem);
     void askUserToChoose();
