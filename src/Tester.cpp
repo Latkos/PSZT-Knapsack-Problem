@@ -1,12 +1,17 @@
 #include "Tester.hpp"
 #include <iostream>
 
+Tester::Tester(ProblemInstance &givenProblem)
+{
+    problem = givenProblem;
+}
+
 void Tester::run(std::ostream &os)
 {
     problem.initializeWeightsAndValues();
-    //display();
     Clock clock;
     time = 0;
+    double quality = 0;
     int bestSolution = 0;
     int sumReal = 0;
     for (int times = 0; times < 20; times++)
@@ -29,14 +34,14 @@ void Tester::run(std::ostream &os)
         time = time + clock.elapsedTime();
         problem.fitness();
         int max = problem.maxFitness();
-        if (max==0)
-        sumReal = sumReal + max;
+        if (max == 0)
+            sumReal = sumReal + max;
     }
-    time=time/20;
-    sumReal=sumReal/20;
-    deviation = (double)sumReal / (double)bestSolution;
-    std::cout<<"CZAS "<<time<<" DEVIATION "<<deviation<<std::endl;
-    //os << problem.mutationRate << "\t" << problem.populationSize << "\t" << problem.generations << "\t" << problem.problemSize << "\t" << deviation << "\t" << time / 20 << std::endl;
+    time = time / 20;
+    sumReal = sumReal / 20;
+    quality = (double)sumReal / (double)bestSolution;
+    os << "CZAS " << time << " JAKOSC " << quality << std::endl;
+    //os << problem.mutationRate << "\t" << problem.populationSize << "\t" << problem.generations << "\t" << problem.problemSize << "\t" << quality << "\t" << time / 20 << std::endl;
 }
 
 void Tester::runTest(std::ostream &os)
@@ -75,8 +80,8 @@ void Tester::runTest(std::ostream &os)
         sumReal = sumReal + max;
     }
     sumReal = sumReal / 50;
-    double deviation = (double)sumReal / (double)bestSolution;
-    os << problem.mutationRate << "\t" << problem.populationSize << "\t" << problem.generations << "\t" << problem.problemSize << "\t" << problem.knapsackSize << "\t" << deviation << "\t" << time / 50 << std::endl;
+    double quality = (double)sumReal / (double)bestSolution;
+    os << problem.mutationRate << "\t" << problem.populationSize << "\t" << problem.generations << "\t" << problem.problemSize << "\t" << problem.knapsackSize << "\t" << quality << "\t" << time / 50 << std::endl;
 }
 
 void Tester::runOnce(std::ostream &os)
@@ -86,7 +91,7 @@ void Tester::runOnce(std::ostream &os)
     int bestSolution = 0;
     problem.initializeWeightsAndValues();
     problem.initializePopulation();
-
+    problem.fitnessHistory.clear();
     clock.start();
     int a = 0;
     while (a < problem.generations)
@@ -99,13 +104,13 @@ void Tester::runOnce(std::ostream &os)
         problem.fitnessHistory.push_back(problem.maxFitness());
     }
     clock.end();
-    problem.fitnessHistory.clear();
     time = time + clock.elapsedTime();
     problem.fitness();
     int max = problem.maxFitness();
-    bestSolution=problem.solveDynamic();
-    deviation=deviation+max/double(bestSolution);
-    os << "Znaleziono rozwiazanie " << max << std::endl;
+    bestSolution = problem.solveDynamic();
+    quality = quality + max / double(bestSolution);
+    os << "Znaleziono rozwiazanie: " << max << " w czasie: " << time << std::endl;
+    os << "Jakosc tego rozwiazania w porownaniu do optymalnego to" << quality << std::endl;
 }
 
 void Tester::testMutationRateForOptimum(std::ostream &os)
@@ -118,7 +123,7 @@ void Tester::testMutationRateForOptimum(std::ostream &os)
        << "\t"
        << "problemSize"
        << "\t"
-       << "deviation"
+       << "quality"
        << "\t"
        << "time" << std::endl;
 
@@ -138,7 +143,7 @@ void Tester::testPopulationSizeForOptimum(std::ostream &os)
        << "\t"
        << "problemSize"
        << "\t"
-       << "deviation"
+       << "quality"
        << "\t"
        << "time" << std::endl;
 
@@ -159,7 +164,7 @@ void Tester::testGenerationsForOptimum(std::ostream &os)
        << "\t"
        << "problemSize"
        << "\t"
-       << "deviation"
+       << "quality"
        << "\t"
        << "time" << std::endl;
 
@@ -176,7 +181,7 @@ void Tester::testFitnessByGeneration(std::ostream &os)
        << "\t"
        << "generation:" << std::endl;
     runOnce(os);
-    for (int i = 0; i < problem.fitnessHistory.size(); ++i)
+    for (unsigned int i = 0; i < problem.fitnessHistory.size(); ++i)
     {
         os << problem.fitnessHistory[i] << "\t" << i << std::endl;
     }
@@ -192,7 +197,7 @@ void Tester::fullTesting(std::ostream &os)
        << "\t"
        << "problemSize"
        << "\t"
-       << "deviation"
+       << "quality"
        << "\t"
        << "time" << std::endl;
     for (double n = 0.1; n < 1; n += 0.2)
@@ -224,7 +229,7 @@ void Tester::problematicTesting(std::ostream &os)
        << "\t"
        << "problemSize"
        << "\t"
-       << "deviation"
+       << "quality"
        << "\t"
        << "time" << std::endl;
     for (double n = 0.7; n < 1; n += 0.2)
@@ -259,7 +264,7 @@ void Tester::testKnapsackSize(std::ostream &os)
        << "\t"
        << "KnapsackSize"
        << "\t"
-       << "deviation"
+       << "quality"
        << "\t"
        << "time" << std::endl;
     for (int i = 60; i < 600; i += 10)
@@ -271,10 +276,8 @@ void Tester::testKnapsackSize(std::ostream &os)
 void Tester::runOnceNoInit(std::ostream &os)
 {
     Clock clock;
-    double time = 0;
-    int bestSolution = 0;
+    double bestSolution = 0;
     int sumReal = 0;
-
     problem.initializePopulation();
     clock.start();
     int a = 0;
@@ -292,11 +295,11 @@ void Tester::runOnceNoInit(std::ostream &os)
     problem.fitness();
     int max = problem.maxFitness();
     sumReal = sumReal + max;
-    for (int i = 0; i < problem.fitnessHistory.size(); ++i)
-    {
-        //  os<<mutationRate<<"\t"<<fitnessHistory[i]<<"\t"<<i<<std::endl;
-    }
+    bestSolution = (double)problem.solveDynamic();
+    quality = sumReal / bestSolution;
     problem.fitnessHistory.clear();
+    os << "Znaleziono rozwiazanie: " << max << " w czasie: " << time << std::endl;
+    os << "Jakosc tego rozwiazania w porownaniu do optymalnego to " << quality << std::endl;
 }
 
 void Tester::testFitnessByGenerationByMutation(std::ostream &os)
@@ -327,10 +330,10 @@ void Tester::testPisinger(std::string fileName)
     int tempValue = 0;
     int tempWeight = 0;
     double avgTime = 0;
-    double avgDeviation = 0;
+    double avgQuality = 0;
     for (int a = 0; a < 100; a++)
     {
-        std::cout<<a<<std::endl;
+        std::cout << a << std::endl;
         problem.values.clear();
         problem.weights.clear();
         for (int b = 0; b < 100; b++)
@@ -342,12 +345,12 @@ void Tester::testPisinger(std::string fileName)
         }
         //we have initialised the weights and values, we need to run the algorithm now
         //problem.displayWeightsAndValues();
-        problem.knapsackSize=0.05*problem.totalItemWeight;
-        runOnce(std::cout);
-        problem.totalItemWeight=0;
+        problem.knapsackSize = 0.05 * problem.totalItemWeight;
+        runOnceNoInit(std::cout);
+        problem.totalItemWeight = 0;
     }
     avgTime = time / 100;
-    avgDeviation = deviation / 100;
-    std::cout << "Sredni czas: " << avgTime << " \n Srednia jakosc: " << avgDeviation << std::endl;
+    avgQuality = quality / 100;
+    std::cout << "Sredni czas: " << avgTime << " \n Srednia jakosc: " << avgQuality << std::endl;
     test1.close();
 }

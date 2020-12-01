@@ -10,32 +10,34 @@ class Tester
 {
 public:
     double time=0;
-    double deviation=0;
+    double quality=0;
     ProblemInstance problem;
+
+    Tester(ProblemInstance &givenProblem);
 
     void run(std::ostream &os = std::cout);
 
     void fullTesting(std::ostream &os = std::cout);
 
-    void problematicTesting(std::ostream &os);
+    void problematicTesting(std::ostream &oss=std::cout);
 
     void testMutationRateForOptimum(std::ostream &os = std::cout);
 
     void runTest(std::ostream &os = std::cout);
 
-    void testPopulationSizeForOptimum(std::ostream &os);
+    void testPopulationSizeForOptimum(std::ostream &oss=std::cout);
 
-    void testGenerationsForOptimum(std::ostream &os);
+    void testGenerationsForOptimum(std::ostream &oss=std::cout);
 
-    void testFitnessByGeneration(std::ostream &os);
+    void testFitnessByGeneration(std::ostream &oss=std::cout);
 
-    void runOnce(std::ostream &os);
+    void runOnce(std::ostream &oss=std::cout);
 
-    void testKnapsackSize(std::ostream &os);
+    void testKnapsackSize(std::ostream &oss=std::cout);
 
-    void testFitnessByGenerationByMutation(std::ostream &os);
+    void testFitnessByGenerationByMutation(std::ostream &oss=std::cout);
 
-    void runOnceNoInit(std::ostream &os);
+    void runOnceNoInit(std::ostream &oss=std::cout);
 
     void testPisinger(std::string fileName);
 

@@ -96,27 +96,7 @@ void ProblemInstance::select() //tournament selection
     population = tempPopulation;
 }
 
-void ProblemInstance::mutate() //not used in our current solution, left if someone potentially wants to see how it works
-{
-    for (int a = 0; a < populationSize; a++)
-    {
-        double probability = randomGen.generateProbability();
-        if (probability < mutationRate)
-        {
-            for (int b = 0; b < problemSize; b++)
-            {
-                probability = randomGen.generateProbability();
-                if (probability < 0.1)
-                {
-                    if (population[a].genes[b] == 1)
-                        population[a].genes[b] = 0;
-                    else
-                        population[a].genes[b] = 1;
-                }
-            }
-        }
-    }
-}
+
 
 void ProblemInstance::smallMutate(double mutationRate) //our version of mutation, flips one bit
 {
@@ -161,38 +141,75 @@ void ProblemInstance::crossover() //the standard crossover we use
     population = tempPopulation;
 }
 
-void ProblemInstance::crossover2() //the crossover we abandoned, left if someone potentially wants to see how it works
+
+int ProblemInstance::max(int a, int b) //needed for dynamic programming
 {
-    std::vector<Specimen> tempPopulation;
-    for (int a = 0; a < populationSize / 2; a++)
+    return (a > b) ? a : b;
+}
+
+int ProblemInstance::solveDynamic() //dynamic programming solution
+{
+    int i, w;
+    int xwidth = problemSize + 1;
+    int ywidth = knapsackSize + 1;
+    int *KArray = (int *)new int[xwidth * ywidth];
+    for (i = 0; i <= problemSize; i++)
     {
-        double probability = randomGen.generateProbability();
-        if (probability > 0.8) //CrossoverRatio crossover ratio
+        for (w = 0; w <= knapsackSize; w++)
         {
-            tempPopulation.push_back(population[a]);
-            tempPopulation.push_back(population[a + 1]);
-        }
-        else
-        {
-            Specimen child1(problemSize), child2(problemSize);
-            int point = randomGen.generateInt(0, problemSize - 1);
-            //int point=populationSize/2;
-            for (int b = 0; b < point; b++)
-            {
-                child1.genes.push_back(population[a].genes[b]);
-                child2.genes.push_back(population[a + 1].genes[b]);
-            }
-            for (int b = point; b < problemSize; b++)
-            {
-                child1.genes.push_back(population[a + 1].genes[b]);
-                child2.genes.push_back(population[a].genes[b]);
-            }
-            tempPopulation.push_back(child1);
-            tempPopulation.push_back(child2);
+            if (i == 0 || w == 0)
+                KArray[w * xwidth + i] = 0;
+            else if (weights[i - 1] <= w)
+                KArray[w * xwidth + i] = max(values[i - 1] + KArray[(w - weights[i - 1]) * xwidth + i - 1], KArray[w * xwidth + i - 1]);
+            else
+                KArray[w * xwidth + i] = KArray[w * xwidth + i - 1];
         }
     }
-    population.clear();
-    population = tempPopulation;
+
+    return KArray[knapsackSize * xwidth + problemSize];
+}
+
+int ProblemInstance::bestSpecimenIndex()
+{
+    for (int a = 0; a < populationSize; a++)
+    {
+        if (population[a].fitness ==maxFitness())
+            return a;
+    }
+    return 0;
+}
+
+void ProblemInstance::mutate() //not used in our current solution, left if someone potentially wants to see how it works
+{
+    for (int a = 0; a < populationSize; a++)
+    {
+        double probability = randomGen.generateProbability();
+        if (probability < mutationRate)
+        {
+            for (int b = 0; b < problemSize; b++)
+            {
+                probability = randomGen.generateProbability();
+                if (probability < 0.1)
+                {
+                    if (population[a].genes[b] == 1)
+                        population[a].genes[b] = 0;
+                    else
+                        population[a].genes[b] = 1;
+                }
+            }
+        }
+    }
+}
+
+void ProblemInstance::initializePopulationWithZeroes() //not used in our solution, left if someone potentially wants to see how it works
+{
+    for (int a = 0; a < populationSize; a++)
+    {
+        for (int b = 0; b < problemSize; b++)
+        {
+            population[a].genes[b] = 0;
+        }
+    }
 }
 
 void ProblemInstance::uniformCrossover() //not used in our solution, left if someone potentially wants to see how it works
@@ -236,89 +253,36 @@ void ProblemInstance::uniformCrossover() //not used in our solution, left if som
     }
 }
 
-int ProblemInstance::max(int a, int b) //needed for dynamic programming
+void ProblemInstance::crossover2() //the crossover we abandoned, left if someone potentially wants to see how it works
 {
-    return (a > b) ? a : b;
-}
-
-int ProblemInstance::solveDynamic() //dynamic programming solution
-{
-    int i, w;
-    int xwidth = problemSize + 1;
-    int ywidth = knapsackSize + 1;
-    int *KArray = (int *)new int[xwidth * ywidth];
-    for (i = 0; i <= problemSize; i++)
+    std::vector<Specimen> tempPopulation;
+    for (int a = 0; a < populationSize / 2; a++)
     {
-        for (w = 0; w <= knapsackSize; w++)
+        double probability = randomGen.generateProbability();
+        if (probability > 0.8) //CrossoverRatio crossover ratio
         {
-            if (i == 0 || w == 0)
-                KArray[w * xwidth + i] = 0;
-            else if (weights[i - 1] <= w)
-                KArray[w * xwidth + i] = max(values[i - 1] + KArray[(w - weights[i - 1]) * xwidth + i - 1], KArray[w * xwidth + i - 1]);
-            else
-                KArray[w * xwidth + i] = KArray[w * xwidth + i - 1];
+            tempPopulation.push_back(population[a]);
+            tempPopulation.push_back(population[a + 1]);
+        }
+        else
+        {
+            Specimen child1(problemSize), child2(problemSize);
+            int point = randomGen.generateInt(0, problemSize - 1);
+            //int point=populationSize/2;
+            for (int b = 0; b < point; b++)
+            {
+                child1.genes.push_back(population[a].genes[b]);
+                child2.genes.push_back(population[a + 1].genes[b]);
+            }
+            for (int b = point; b < problemSize; b++)
+            {
+                child1.genes.push_back(population[a + 1].genes[b]);
+                child2.genes.push_back(population[a].genes[b]);
+            }
+            tempPopulation.push_back(child1);
+            tempPopulation.push_back(child2);
         }
     }
-
-    return KArray[knapsackSize * xwidth + problemSize];
+    population.clear();
+    population = tempPopulation;
 }
-
-int ProblemInstance::bestSpecimenIndex()
-{
-    for (int a = 0; a < populationSize; a++)
-    {
-        if (population[a].fitness ==maxFitness())
-            return a;
-    }
-    return 0;
-}
-
-void ProblemInstance::initializePopulationWithZeroes() //not used in our solution, left if someone potentially wants to see how it works
-{
-    for (int a = 0; a < populationSize; a++)
-    {
-        for (int b = 0; b < problemSize; b++)
-        {
-            population[a].genes[b] = 0;
-        }
-    }
-}
-
-void ProblemInstance::run(std::ostream &os)
-{
-    initializeWeightsAndValues();
-    //display();
-    Clock clock;
-    double time = 0;
-    int bestSolution = 0;
-    int sumReal = 0;
-    for (int times = 0; times < 20; times++)
-    {
-        initializePopulation();
-        if (times == 0)
-            bestSolution = solveDynamic();
-
-        clock.start();
-        int a = 0;
-        while (a < generations)
-        {
-            fitness();
-            select();
-            crossover();
-            smallMutate(mutationRate);
-            a++;
-            fitnessHistory.push_back(maxFitness());
-        }
-        clock.end();
-        time = time + clock.elapsedTime();
-        fitness();
-        int max = maxFitness();
-        sumReal = sumReal + max;
-    }
-    sumReal = sumReal / 20;
-    double deviation = (double)sumReal / (double)bestSolution;
-    os << mutationRate << "\t" << populationSize << "\t" << generations << "\t" << problemSize << "\t" << deviation << "\t" << time / 20 << std::endl;
-    //std::cout << "Srednie odchylenie: " << deviation << std::endl;
-    //std::cout << "Sredni czas: " << time / 50 << std::endl;
-}
-
