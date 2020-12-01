@@ -14,7 +14,7 @@ void Tester::runTest(std::ostream &os, bool d)
     int bestSolution = 0;
     int sumReal = 0;
 
-    for (int times = 0; times < 50; times++)
+    for (int times = 0; times < 10; times++)
     {
         if (!d)
             problem.initializeWeightsAndValues();
@@ -38,9 +38,9 @@ void Tester::runTest(std::ostream &os, bool d)
         int max = problem.maxFitness();
         sumReal = sumReal + max;
     }
-    sumReal = sumReal / 50;
+    sumReal = sumReal / 10;
     double quality = (double)sumReal / (double)bestSolution;
-    os << problem.mutationRate << "\t" << problem.populationSize << "\t" << problem.generations << "\t" << problem.problemSize << "\t" << problem.knapsackSize << "\t" << quality << "\t" << time / 50 << std::endl;
+    os << problem.mutationRate << "\t" << problem.populationSize << "\t" << problem.generations << "\t" << problem.problemSize << "\t" << problem.knapsackSize << "\t" << quality << "\t" << time / 10 << std::endl;
 }
 
 void Tester::runOnce(std::ostream &os, bool d)
@@ -247,7 +247,6 @@ void Tester::testPisinger(std::string fileName)
         problem.knapsackSize = 0.5 * problem.totalItemWeight;
         runTest(std::cout, 1);
         problem.totalItemWeight = 0;
-        problem.population.clear();
     }
     avgTime = time / 100;
     avgQuality = quality / 100;

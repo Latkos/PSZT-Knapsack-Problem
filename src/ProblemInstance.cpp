@@ -162,7 +162,6 @@ int ProblemInstance::solveDynamic() //dynamic programming solution
                 KArray[w * xwidth + i] = KArray[w * xwidth + i - 1];
         }
     }
-
     return KArray[knapsackSize * xwidth + problemSize];
 }
 
